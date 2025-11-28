@@ -12,3 +12,20 @@ def speak(text):
     engine.runAndWait()
 
 # Speech to Text
+
+r = sr.Recognizer()
+
+def listen():
+    with  sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source)
+        print("Listening...")
+        audio = r.listen(source)
+    try:
+        text = r.recognize_google(audio)
+        print("User: ", text)
+        return text.lower()
+    except sr.UnknownValueError:
+        return None
+    except sr.RequestError as e:
+        print("API error: ", e)
+        return None
