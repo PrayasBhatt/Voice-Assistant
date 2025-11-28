@@ -1,6 +1,9 @@
 import pyttsx3
 import speech_recognition as sr
 import datetime
+import webbrowser
+import os
+from playsound import playsound
 
 # Text to Speech  
 engine = pyttsx3.init()
@@ -48,6 +51,33 @@ def tell_date():
     today = datetime.date.today()
     return f"Today is {today.strftime('%A, %B %d, %Y')}"
 
+# Search Function
+def Search(website):
+    if not website:
+        return "Please specify what to search."
+    if"." not in website:
+        url = f"https://www.google.com/search?q={website}"
+    else:
+        url = "https://" + website
+    webbrowser.open(url)
+    return f"Opened {website}"
+
+# Open Function
+def open_website(website):
+    if not website:
+        return "Which website should I open?"
+    
+    website = website.lower().replace(" ", "")
+    
+    if not website.startswith("http"):
+        website = "https://" + website + ".com"
+
+    try:
+        webbrowser.open(website)
+        return f"Opened {website}"
+    except Exception:
+        return "Sorry, I couldn't open that website."
+
 # Command Parser
 def parse_command(command):
     if not command:
@@ -56,6 +86,12 @@ def parse_command(command):
         return tell_time()
     elif 'date' in command:
         return tell_date()
+    elif 'search' in command:
+        site = command.replace('search', '').strip()
+        return Search(site)
+    elif 'open' in command:
+        site = command.replace('open', '').strip()
+        return open_website(site)
     elif 'exit' in command or 'quit' in command:
         return "exit"
     else:
