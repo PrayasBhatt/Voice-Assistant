@@ -29,3 +29,16 @@ def listen():
     except sr.RequestError as e:
         print("API error: ", e)
         return None
+
+speak("Hello! How can I assist you today? Say 'exit' to quit.")
+
+while True:
+    command = listen()
+    if command:
+        if 'exit' in command:
+            speak("Goodbye!")
+            break
+        else:
+            speak(f"You said: {command}")
+    else:
+        speak("I didn't catch that. Could you please repeat?")
