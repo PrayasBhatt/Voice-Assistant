@@ -1,10 +1,14 @@
 import pyttsx3
 import speech_recognition as sr
+import datetime
 
 # Text to Speech  
 engine = pyttsx3.init()
 engine.setProperty('rate',150)
 engine.setProperty('volume',1.0)
+
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
 
 def speak(text):
     print("Assistant: ", text)
@@ -19,7 +23,10 @@ def listen():
     with  sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
         print("Listening...")
-        audio = r.listen(source)
+        try:
+            audio = r.listen(source, timeout=5, phrase_time_limit=5)
+        except sr.WaitTimeoutError:
+            return None
     try:
         text = r.recognize_google(audio)
         print("User: ", text)
@@ -29,16 +36,40 @@ def listen():
     except sr.RequestError as e:
         print("API error: ", e)
         return None
+    
+# Time function 
 
-speak("Hello! How can I assist you today? Say 'exit' to quit.")
+def tell_time():
+    now = datetime.datetime.now()
+    return f"The current time is {now.strftime('%I:%M %p')}"
+
+# Date Function 
+def tell_date():
+    today = datetime.date.today()
+    return f"Today is {today.strftime('%A, %B %d, %Y')}"
+
+# Command Parser
+def parse_command(command):
+    if not command:
+        return "I didn't catch that. Please say again."
+    elif 'time' in command:
+        return tell_time()
+    elif 'date' in command:
+        return tell_date()
+    elif 'exit' in command or 'quit' in command:
+        return "exit"
+    else:
+        return "I can only tell you the time or date. Please ask accordingly."
+    
+
+speak("Hello! How can I assist you today?")
 
 while True:
     command = listen()
-    if command:
-        if 'exit' in command:
-            speak("Goodbye!")
-            break
-        else:
-            speak(f"You said: {command}")
-    else:
-        speak("I didn't catch that. Could you please repeat?")
+    result = parse_command(command)
+
+    if result == "exit":
+        speak("Goodbye!")
+        break
+    
+    speak(result)
